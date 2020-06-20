@@ -1,17 +1,14 @@
-require "./config/environment"
-require "./app/models/user"
 class ApplicationController < Sinatra::Base
-
   configure do
-    set :views, "app/views"
-    enable :sessions
-    set :session_secret, "password_security"
+    set :public_folder, 'public'
+    set :views, 'app/views'
   end
 
-  get "/" do
-    erb :index
+  get '/' do
+    redirect to '/recipes'
   end
 
+<<<<<<< HEAD
   get "/signup" do
     erb :signup
   end
@@ -27,18 +24,23 @@ class ApplicationController < Sinatra::Base
 			redirect to "/failure"
 		end
 
+=======
+  get '/recipes' do
+    @recipes = Recipe.all
+    erb :index
+>>>>>>> 90cf43f5e6153879d07da07a2fc920d74c5a30a6
   end
 
-  get '/account' do
-    @user = User.find(session[:user_id])
-    erb :account
+  get '/recipes/new' do
+    erb :new
   end
 
-
-  get "/login" do
-    erb :login
+  get '/recipes/:id' do
+    @recipe = Recipe.find_by_id(params[:id])
+    erb :show
   end
 
+<<<<<<< HEAD
   post "/login" do
     user = User.find_by(:username => params[:username])
 		if user && user.authenticate(params[:password])
@@ -47,25 +49,26 @@ class ApplicationController < Sinatra::Base
 		else
 			redirect to "/failure"
 		end
+=======
+  delete '/recipes/:id' do
+    Recipe.find_by_id(params[:id]).destroy
+    redirect to '/recipes'
+>>>>>>> 90cf43f5e6153879d07da07a2fc920d74c5a30a6
   end
 
-  get "/failure" do
-    erb :failure
+  get '/recipes/:id/edit' do
+    @recipe = Recipe.find_by_id(params[:id])
+    erb :edit
   end
 
-  get "/logout" do
-    session.clear
-    redirect "/"
+  post '/recipes' do
+    recipe = Recipe.create(name: params[:name], ingredients: params[:ingredients], cook_time: params[:cook_time])
+    redirect to "/recipes/#{recipe.id}"
   end
 
-  helpers do
-    def logged_in?
-      !!session[:user_id]
-    end
-
-    def current_user
-      User.find(session[:user_id])
-    end
+  patch '/recipes/:id' do
+    recipe = Recipe.find_by_id(params[:id])
+    recipe.update(name: params[:name], ingredients: params[:ingredients], cook_time: params[:cook_time])
+    redirect to "/recipes/#{recipe.id}"
   end
-
 end
